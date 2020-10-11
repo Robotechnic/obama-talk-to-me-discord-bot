@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Robotechnic/obama-talk-to-me-discord-bot#readme",
   "dependencies": {
-    "discord.js": "^12.3.1"
+    "discord.js": "^12.3.1",
+    "follow-redirects": "^1.13.0"
   }
 }
