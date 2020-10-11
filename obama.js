@@ -1,20 +1,22 @@
 const url = require('url')
 const {http,https} = require("follow-redirects")
 const querystring = require('querystring');
-//const http = require("http")
+const EventEmitter = require('events');
 
 const webSite = "talkobamato.me"
 const post = "/synthesize.py"
 const exist = "/synth/output/"
-const file = "obama.mp4"
+const file = "/obama.mp4"
 const maxCaracter = 280
 
-class obamaRequest {
+class obamaRequest extends EventEmitter{
 
 	requestStack = [] //contain all vidéo token
+	currentRequest = ""
+	videoId = -1
 
 	constructor () {
-
+		super()
 	}
 
 	newVideo(text){
@@ -47,9 +49,10 @@ class obamaRequest {
 			}
 		}
 		const req = http.request(options, res =>{
-			console.log(res.responseUrl)
-
-			//requestStack.push(videoId)
+			//console.log(res.responseUrl)
+			this.requestStack.push(this.parseUrl(res.responseUrl))
+			if (this.videoId == -1)
+				this.checkVideo()
 		})
 
 		req.on("error",error=>{
@@ -64,7 +67,7 @@ class obamaRequest {
 		//return the speech key of url exemple:
 		//http://talkobamato.me/synthesize.py?speech_key=eadb1fc16ea0c7fc584d78e148489565
 		//will return eadb1fc16ea0c7fc584d78e148489565
-		
+
 		var argRegex = /([a-z_\-]+)=([a-z_\-%0-9]+)/g
 		var args = url.match(argRegex)
 		
@@ -79,6 +82,38 @@ class obamaRequest {
 				}
 			}
 		}
+	}
+
+	checkVideo (){
+		if (this.currentRequest == "" && this.requestStack.length > 0)
+			this.currentRequest = this.requestStack.shift()
+
+		//console.log('checkVideo',this.currentRequest)
+
+		const options = {
+			hostname:webSite,
+			path:exist+this.currentRequest+file,
+			method:"GET"
+		}
+
+		const req = http.request(options,res=>{
+			console.log(res.status)
+			if (res.status != 404){
+				this.emit("newVideo",res.responseUrl)
+				this.currentRequest = ""
+			} 
+
+			if (this.requestStack.length > 0 || res.status == 404)
+				this.videoId = setTimeout(this.checkVideo, 10000)
+			else
+				this.videoId = -1
+		})
+
+		req.on("error",error=>{
+			console.log('error:',error)
+		})
+
+		req.end()
 	}
 }
 

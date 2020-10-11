@@ -10,6 +10,12 @@ bot.once('ready', () => {
 	console.log('Ready!')
 })
 
+
+obamaRequest.on("newVideo",(url)=>{
+	console.log('new video',url)
+})
+
+
 bot.on("message",message => {
 	if (!message.content.startsWith(config.prefix) && message.author.bot){
 		return
