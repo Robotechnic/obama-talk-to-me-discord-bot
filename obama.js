@@ -12,15 +12,14 @@ const maxCaracter = 280
 class obamaRequest extends EventEmitter{
 
 	requestStack = [] //contain all vidéo token
-	currentRequest = ""
+	currentRequest = {}
 	videoId = -1
 
 	constructor () {
 		super()
 	}
 
-	newVideo(text){
-		console.log(text)
+	newVideo(text,id){
 		var texts = [text]
 		while (texts[texts.length-1].length > maxCaracter){
 			temp = texts[texts.length-1]
@@ -29,11 +28,12 @@ class obamaRequest extends EventEmitter{
 		}
 
 		for (var i = 0; i<texts.length; i++){
-			this.makeRequest(texts[i])
+			this.makeRequest(texts[i],id)
 		}
 	}
 
-	makeRequest(text){
+	makeRequest(text,id){
+		
 		const data = querystring.stringify({
 			"input_text":text
 		})
@@ -49,8 +49,10 @@ class obamaRequest extends EventEmitter{
 			}
 		}
 		const req = http.request(options, res =>{
-			//console.log(res.responseUrl)
-			this.requestStack.push(this.parseUrl(res.responseUrl))
+			this.requestStack.push({
+				"id":this.parseUrl(res.responseUrl),
+				"channelId":id
+			})
 			if (this.videoId == -1)
 				this.checkVideo()
 		})
@@ -85,22 +87,21 @@ class obamaRequest extends EventEmitter{
 	}
 
 	checkVideo (){
-		if (this.currentRequest == "" && this.requestStack.length > 0)
+		if (this.currentRequest == {} && this.requestStack.length > 0)
 			this.currentRequest = this.requestStack.shift()
 
-		//console.log('checkVideo',this.currentRequest)
 
 		const options = {
 			hostname:webSite,
-			path:exist+this.currentRequest+file,
+			path:exist+this.currentRequest.id+file,
 			method:"GET"
 		}
 
 		const req = http.request(options,res=>{
 			console.log(res.status)
 			if (res.status != 404){
-				this.emit("newVideo",res.responseUrl)
-				this.currentRequest = ""
+				this.emit("newVideo",{"url":res.responseUrl,"channelId":this.currentRequest.channelId})
+				this.currentRequest = {}
 			} 
 
 			if (this.requestStack.length > 0 || res.status == 404)
@@ -118,29 +119,3 @@ class obamaRequest extends EventEmitter{
 }
 
 module.exports = obamaRequest
-
-/*
-output_dir = 'synth/output/';
-
-flag_fname = 'video_created.txt';
-
-function UrlExists(url)
-{
-    var http = new XMLHttpRequest();
-    http.open('HEAD', url, false);
-    http.send();
-    return http.status!=404;
-}
-
-function reloadIfExists(speech_key)
-{
-	//hostname = location.hostname;
-	flag_url = output_dir.concat("/",speech_key, "/", flag_fname);
-	console.log(flag_url);
-	var exists = UrlExists(flag_url);
-	
-	if (exists) {
-		// reload the page
-		location.reload(true);
-	}
-}*/

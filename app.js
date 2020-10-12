@@ -1,6 +1,7 @@
 const config = require("./config.json")
 const discord = require("discord.js")
 const obama = require("./obama.js")
+const customEmbed = require("./embeds.js")
 
 var bot = new discord.Client()
 var obamaRequest = new obama()
@@ -11,8 +12,9 @@ bot.once('ready', () => {
 })
 
 
-obamaRequest.on("newVideo",(url)=>{
-	console.log('new video',url)
+obamaRequest.on("newVideo",(channel)=>{
+	console.log('new video',channel)
+	//channel.message.channel.send({ embed: customEmbed.videoEmbed(url) })
 })
 
 
@@ -24,19 +26,10 @@ bot.on("message",message => {
 	const command = args.shift().toLowerCase()
 	
 	if (command == "help"){
-		data = [
-			"**Obama help command:**",
-			"**!obama [message]**",
-			"create a vidéo using obamatalktome",
-			"**!help**",
-			"display this message",
-			message.author,
-		]
-		message.channel.send(data,{split:true})
+		message.channel.send({ embed: customEmbed.helpEmbed })
 
 	} else if (command == "obama"){
-		obamaRequest.newVideo(args.join(" "))
-		message.delete()
+		obamaRequest.newVideo(args.join(" "),message.channel.id)
 	}
 })
 
