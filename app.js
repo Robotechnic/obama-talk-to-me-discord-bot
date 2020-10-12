@@ -13,8 +13,9 @@ bot.once('ready', () => {
 
 
 obamaRequest.on("newVideo",(channel)=>{
-	console.log('new video',channel)
-	//channel.message.channel.send({ embed: customEmbed.videoEmbed(url) })
+	//console.log('new video',channel)
+	//bot.channels.cache.get(channel.channelId).send({ embed: customEmbed.videoEmbed(channel.url) })
+	bot.channels.cache.get(channel.channelId).send(channel.url)
 })
 
 
@@ -29,6 +30,7 @@ bot.on("message",message => {
 		message.channel.send({ embed: customEmbed.helpEmbed })
 
 	} else if (command == "obama"){
+		console.log("command obama",message.channel.id)
 		obamaRequest.newVideo(args.join(" "),message.channel.id)
 	}
 })

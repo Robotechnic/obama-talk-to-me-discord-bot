@@ -48,7 +48,9 @@ class obamaRequest extends EventEmitter{
     			'Content-Length': Buffer.byteLength(data)
 			}
 		}
+
 		const req = http.request(options, res =>{
+			//console.log("httprequest post",this.parseUrl(res.responseUrl),id)
 			this.requestStack.push({
 				"id":this.parseUrl(res.responseUrl),
 				"channelId":id
@@ -58,7 +60,7 @@ class obamaRequest extends EventEmitter{
 		})
 
 		req.on("error",error=>{
-			console.log('error:',error)
+			console.log('error post request:',error)
 		})
 
 		req.write(data)
@@ -87,8 +89,10 @@ class obamaRequest extends EventEmitter{
 	}
 
 	checkVideo (){
-		if (this.currentRequest == {} && this.requestStack.length > 0)
+		if ((this.currentRequest.id == undefined || this.currentRequest.channelId==undefined) && this.requestStack.length > 0){
+			//console.log('New request')
 			this.currentRequest = this.requestStack.shift()
+		}
 
 
 		const options = {
@@ -98,7 +102,7 @@ class obamaRequest extends EventEmitter{
 		}
 
 		const req = http.request(options,res=>{
-			console.log(res.status)
+			//console.log(res.status)
 			if (res.status != 404){
 				this.emit("newVideo",{"url":res.responseUrl,"channelId":this.currentRequest.channelId})
 				this.currentRequest = {}
@@ -111,7 +115,7 @@ class obamaRequest extends EventEmitter{
 		})
 
 		req.on("error",error=>{
-			console.log('error:',error)
+			console.log('error get request:',error)
 		})
 
 		req.end()
