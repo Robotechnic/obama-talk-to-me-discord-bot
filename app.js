@@ -1,7 +1,9 @@
+var config = {}
+
 try {
-	const config = require("./config.json")
+	config = require("./config.json")
 } catch(e) {
-	const config = {
+	config = {
 		"token":process.env.TOKEN,
 		"prefix":process.env.PREFIX
 	}
