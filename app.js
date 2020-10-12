@@ -13,13 +13,14 @@ bot.once('ready', () => {
 
 
 obamaRequest.on("newVideo",(channel)=>{
-	//console.log('new video',channel)
+	console.log('new video',channel)
 	//bot.channels.cache.get(channel.channelId).send({ embed: customEmbed.videoEmbed(channel.url) })
 	bot.channels.cache.get(channel.channelId).send(channel.url)
 })
 
 
 bot.on("message",message => {
+	console.log("new message")
 	if (!message.content.startsWith(config.prefix) && message.author.bot){
 		return
 	}

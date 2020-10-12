@@ -104,6 +104,7 @@ class obamaRequest extends EventEmitter{
 		const req = http.request(options,res=>{
 			//console.log(res.status)
 			if (res.status != 404){
+				//console.log("New request 200")
 				this.emit("newVideo",{"url":res.responseUrl,"channelId":this.currentRequest.channelId})
 				this.currentRequest = {}
 			} 
