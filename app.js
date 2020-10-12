@@ -1,4 +1,14 @@
-const config = require("./config.json")
+try {
+	const config = require("./config.json")
+} catch(e) {
+	const config = {
+		"token":process.env.TOKEN,
+		"prefix":process.env.PREFIX
+	}
+}
+
+
+
 const discord = require("discord.js")
 const obama = require("./obama.js")
 const customEmbed = require("./embeds.js")
